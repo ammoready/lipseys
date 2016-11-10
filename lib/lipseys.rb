@@ -1,5 +1,11 @@
-require "lipseys/version"
+require 'lipseys/version'
+
+require 'net/http'
+require 'nokogiri'
+
+require 'lipseys/base'
+require 'lipseys/catalog'
 
 module Lipseys
-  # Your code goes here...
+  class NotAuthenticated < StandardError; end
 end
