@@ -16,8 +16,49 @@ module Lipseys
     end
 
     def all
+      get_items
+    end
+
+    def self.firearms(options = {})
+      new(options).firearms
+    end
+
+    def firearms
+      get_items('FIREARM')
+    end
+
+    def self.nfa(options = {})
+      new(options).nfa
+    end
+
+    def nfa
+      get_items('NFA')
+    end
+
+    def self.optics(options = {})
+      new(options).optics
+    end
+
+    def optics
+      get_items('OPTIC')
+    end
+
+    def self.accessories(options = {})
+      new(options).accessories
+    end
+
+    def accessories
+      get_items('ACCESSORY')
+    end
+
+    private
+
+    def get_items(item_type = nil)
+      params = { email: @email, pass: @password }
+      params[:itemtype] = item_type unless item_type.nil?
+
       uri = URI(API_URL)
-      uri.query = URI.encode_www_form({ email: @email, pass: @password })
+      uri.query = URI.encode_www_form(params)
 
       response = Net::HTTP.get_response(uri)
       xml_doc = Nokogiri::XML(response.body)
@@ -86,22 +127,6 @@ module Lipseys
       end
 
       items
-    end
-
-    def self.firearms(options = {})
-      new(options).firearms
-    end
-
-    def self.nfa(options = {})
-      new(options).nfa
-    end
-
-    def self.optics(options = {})
-      new(options).optics
-    end
-
-    def self.accessories(options = {})
-      new(options).accessories
     end
 
   end
