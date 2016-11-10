@@ -57,13 +57,7 @@ module Lipseys
       params = { email: @email, pass: @password }
       params[:itemtype] = item_type unless item_type.nil?
 
-      uri = URI(API_URL)
-      uri.query = URI.encode_www_form(params)
-
-      response = Net::HTTP.get_response(uri)
-      xml_doc = Nokogiri::XML(response.body)
-
-      raise Lipseys::NotAuthenticated if not_authenticated?(xml_doc)
+      xml_doc = get_response_xml(API_URL, params)
 
       items = []
 

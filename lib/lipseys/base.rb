@@ -26,6 +26,18 @@ module Lipseys
       node.nil? ? nil : node.content.strip
     end
 
+    def get_response_xml(api_url, params)
+      uri = URI(api_url)
+      uri.query = URI.encode_www_form(params)
+
+      response = Net::HTTP.get_response(uri)
+      xml_doc = Nokogiri::XML(response.body)
+
+      raise Lipseys::NotAuthenticated if not_authenticated?(xml_doc)
+
+      xml_doc
+    end
+
     def not_authenticated?(xml_doc)
       msg = content_for(xml_doc, 'CatalogError')
       msg =~ /Login failed/i
