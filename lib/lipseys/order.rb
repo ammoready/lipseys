@@ -55,5 +55,10 @@ module Lipseys
       { OrderData: order_data }
     end
 
+    def not_authenticated?(response)
+      order_result = response.body[:submit_order_response][:submit_order_result]
+      order_result[:success] == 'N' && order_result[:return_desc] =~ /Credentials Not Valid/i
+    end
+
   end
 end
