@@ -1,4 +1,16 @@
 module Lipseys
+  # Each method will return an array of inventory items with the following fields:
+  #
+  #   {
+  #     item_number: content_for(item, 'ItemNo'),
+  #     upc: content_for(item, 'UPC'),
+  #     manufacturer_model_number: content_for(item, 'MFGModelNo'),
+  #     quantity_on_hand: content_for(item, 'QtyOnHand'),
+  #     allocation: (content_for(item, 'Allocation') == 'Y'),
+  #     price: content_for(item, 'Price'),
+  #     on_sale: (content_for(item, 'OnSale') == 'Y'),
+  #     retail_map: content_for(item, 'RetailMAP')
+  #   }
   class Inventory < Base
 
     API_URL = 'https://www.lipseys.com/API/pricequantitycatalog.ashx'

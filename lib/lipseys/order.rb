@@ -1,4 +1,15 @@
 module Lipseys
+  # Required options when submitting an order:
+  #
+  # * `:email` and `:password`
+  # * `:item_number` OR `:upc`
+  # * `:quantity`
+  # * `:purchase_order`
+  #
+  # Optional order params:
+  #
+  # * `:notify_by_email` (boolean)
+  # * `:note`
   class Order < SoapClient
 
     def initialize(options = {})
