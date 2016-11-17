@@ -7,8 +7,8 @@ module Lipseys
       @password = options[:password]
 
       @order_number = options[:order_number]
-      @po_number = options[:po_number]
-      raise ArgumentError.new("Either :order_number or :po_number is required") if @order_number.nil? && @po_number.nil?
+      @purchase_order = options[:purchase_order]
+      raise ArgumentError.new("Either :order_number or :purchase_order is required") if @order_number.nil? && @purchase_order.nil?
     end
 
 
@@ -27,7 +27,6 @@ module Lipseys
         invoices_found: Integer(invoice_result[:invoices_found]),
         description: invoice_result[:return_desc],
 
-        # TODO: Parse the invoice details once an invoice is created on Lipsey's end.
         invoices: invoice_result[:invoices]
       }
     rescue Savon::Error => e
@@ -43,7 +42,7 @@ module Lipseys
       }
 
       inquiry_data[:OrderNo] = @order_number unless @order_number.nil?
-      inquiry_data[:PONumber] = @po_number unless @po_number.nil?
+      inquiry_data[:PONumber] = @purchase_order unless @purchase_order.nil?
 
       { InquiryData: inquiry_data }
     end
