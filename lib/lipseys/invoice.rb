@@ -1,6 +1,31 @@
 module Lipseys
   # In addition to the `:email` and `:password` options, finding invoices requires
   # either an `:order_number` **OR** a `:purchase_order`.
+  #
+  # The response structure will look like this:
+  #
+  #   {
+  #     invoices_found: 1,
+  #     description: "1 Invoice(s) found.",
+  #     invoices: {
+  #       invoice_detail: {
+  #         invoice_no: "...",
+  #         ship_to_location: "...",
+  #         tracking_no: "...",
+  #         line_items: {
+  #           item_detail: {
+  #             item_no: "...",
+  #             upc: "...",
+  #             qty: "...",
+  #             serialized_item: "...",
+  #             serial_numbers: {
+  #               string: "..."
+  #             }
+  #           }
+  #         }
+  #       }
+  #     }
+  #   }
   class Invoice < SoapClient
 
     def initialize(options = {})
@@ -18,30 +43,6 @@ module Lipseys
       new(*args).all
     end
 
-    # The response structure will look like this:
-    #
-    # {
-    #   invoices_found: 1,
-    #   description: "1 Invoice(s) found.",
-    #   invoices: {
-    #     invoice_detail: {
-    #       invoice_no: "...",
-    #       ship_to_location: "...",
-    #       tracking_no: "...",
-    #       line_items: {
-    #         item_detail: {
-    #           item_no: "...",
-    #           upc: "...",
-    #           qty: "...",
-    #           serialized_item: "...",
-    #           serial_numbers: {
-    #             string: "..."
-    #           }
-    #         }
-    #       }
-    #     }
-    #   }
-    # }
     def all
       response = soap_client.call(:get_invoices, message: build_inquiry_data)
 

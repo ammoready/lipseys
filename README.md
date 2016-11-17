@@ -32,7 +32,7 @@ options = {
 ### Lipseys::Catalog
 
 There are several methods you can use to fetch different kinds (or all) items in the catalog.
-All of the listed methods return the same response structure.  See Lipseys::Catalog for details.
+All of the listed methods return the same response structure.  See `Lipseys::Catalog` for details.
 
 ```ruby
 # All items
@@ -54,7 +54,7 @@ accessories = Lipseys::Catalog.accessories(options)
 ### Lipseys::Inventory
 
 There are similar methods for getting your account's inventory (availability, price, etc.).
-All methods return the same response structure.  See Lipseys::Inventory for details.
+All methods return the same response structure.  See `Lipseys::Inventory` for details.
 
 ```ruby
 inventory = Lipseys::Inventory.all(options)
@@ -89,7 +89,7 @@ options = {
 response = Lipseys::Order.submit!(options)
 ```
 
-The response will have this structure:  (See Lipseys::Order for more details)
+The response will have this structure:  (See `Lipseys::Order` for more details)
 
 ```ruby
 {
@@ -119,7 +119,7 @@ options = {
 invoice = Lipseys::Invoice.all(options)
 ```
 
-See Lipseys::Invoice for the response structure details.
+See `Lipseys::Invoice` for the response structure details.
 
 ## Development
 
