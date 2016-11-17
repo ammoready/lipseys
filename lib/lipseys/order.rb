@@ -2,13 +2,13 @@ module Lipseys
   class Order < SoapClient
 
     def initialize(options = {})
-      requires!(options, :email, :password, :quantity)
+      requires!(options, :email, :password, :quantity, :purchase_order)
       @email = options[:email]
       @password = options[:password]
       @quantity = options[:quantity]
 
       @notify_by_email = (options[:notify_by_email] == true ? 'Y' : nil)
-      @po_number = options[:po_number]
+      @purchase_order = options[:purchase_order]
       @note = options[:note]
 
       @item_number_or_upc = options[:item_number] || options[:upc]
@@ -49,7 +49,7 @@ module Lipseys
       }
 
       order_data[:NotifyByEmail] = @notify_by_email unless @notify_by_email.nil?
-      order_data[:PONumber] = @po_number unless @po_number.nil?
+      order_data[:PONumber] = @purchase_order unless @purchase_order.nil?
       order_data[:Note] = @note unless @note.nil?
 
       { OrderData: order_data }
