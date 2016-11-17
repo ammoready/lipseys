@@ -17,10 +17,10 @@ module Lipseys
 
 
     def self.submit(*args)
-      new(*args).submit
+      new(*args).submit!
     end
 
-    def submit
+    def submit!
       response = soap_client.call(:submit_order, message: build_order_data)
 
       raise Lipseys::NotAuthenticated if not_authenticated?(response)
