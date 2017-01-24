@@ -27,7 +27,7 @@ module Lipseys
     end
 
 
-    def self.submit(*args)
+    def self.submit!(*args)
       new(*args).submit!
     end
 
