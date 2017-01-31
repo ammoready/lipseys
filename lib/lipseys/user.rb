@@ -9,11 +9,9 @@ module Lipseys
     end
 
     def authenticated?
-      # As an auth check, just try to get invoices with a bogus order number.
-      Lipseys::Invoice.all(@options.merge(order_number: 'abc'))
-      true
-    rescue Lipseys::NotAuthenticated
-      false
+      validate[:success]
+    end
+
     def validate
       body = { Credentials: { EmailAddress: @options[:email], Password: @options[:password] } }
       response = soap_client(API_URL).call(:validate_dealer, message: body)
