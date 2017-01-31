@@ -5,8 +5,8 @@ module Lipseys
 
     protected
 
-    def soap_client
-      @soap_client ||= Savon.client(wsdl: API_URL, convert_request_keys_to: :none)
+    def soap_client(api_url = API_URL)
+      @soap_client ||= Savon.client(wsdl: api_url, convert_request_keys_to: :none)
     end
 
   end
