@@ -49,13 +49,16 @@ module Lipseys
           yield(chunker.chunk)
 
           chunker.reset
-        elsif chunker.is_complete?
-          yield(chunker.chunk)
-
-          break
         else
           chunker.add(map_hash(node))
         end
+      end
+
+      # HACK-david
+      # since we can't get a count of the items without reading the file
+      # Let's just check to see if we have any left in the chunk
+      if chunker.chunk.count > 0
+        yield(chunker.chunk)
       end
 
       tempfile.unlink
