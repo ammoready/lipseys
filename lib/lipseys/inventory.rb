@@ -71,22 +71,26 @@ module Lipseys
 
       xml_doc = get_response_xml(API_URL, params)
 
-      items = []
+      items = Array.new
 
       xml_doc.css('LipseysInventoryPricing/Item').each do |item|
-        items << {
-          item_number: content_for(item, 'ItemNo'),
-          upc: content_for(item, 'UPC'),
-          manufacturer_model_number: content_for(item, 'MFGModelNo'),
-          quantity_on_hand: content_for(item, 'QtyOnHand'),
-          allocation: (content_for(item, 'Allocation') == 'Y'),
-          price: content_for(item, 'Price'),
-          on_sale: (content_for(item, 'OnSale') == 'Y'),
-          retail_map: content_for(item, 'RetailMAP')
-        }
+        items.push(map_hash(item))
       end
 
       items
+    end
+
+    def map_hash(node)
+      {
+        item_number: content_for(node, 'ItemNo'),
+        upc: content_for(node, 'UPC'),
+        manufacturer_model_number: content_for(node, 'MFGModelNo'),
+        quantity_on_hand: content_for(node, 'QtyOnHand'),
+        allocation: (content_for(node, 'Allocation') == 'Y'),
+        price: content_for(node, 'Price'),
+        on_sale: (content_for(node, 'OnSale') == 'Y'),
+        retail_map: content_for(node, 'RetailMAP')
+      }
     end
 
   end
