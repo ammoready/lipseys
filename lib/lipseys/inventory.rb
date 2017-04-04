@@ -31,6 +31,36 @@ module Lipseys
       get_items
     end
 
+    def self.all_as_chunks(size, options = {}, &block)
+      new(options).all_as_chunks(size, &block)
+    end
+
+    def all_as_chunks(size, &block)
+      params = {
+        email:  @email,
+        pass:   @password
+      }
+      chunker   = Lipseys::Chunker.new(size)
+      tempfile  = stream_to_tempfile(API_URL, params)
+      parser    = Parser.new(tempfile)
+
+      parser.parse('Item') do |node|
+        if chunker.is_full?
+          yield(chunker.chunk)
+
+          chunker.reset
+        elsif chunker.is_complete?
+          yield(chunker.chunk)
+
+          break
+        else
+          chunker.add(map_hash(node))
+        end
+      end
+
+      tempfile.unlink
+    end
+
     def self.firearms(options = {})
       new(options).firearms
     end
