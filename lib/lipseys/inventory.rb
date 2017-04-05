@@ -28,7 +28,19 @@ module Lipseys
     end
 
     def all
-      get_items
+      params = {
+        email:  @email,
+        pass:   @password
+      }
+      tempfile = stream_to_tempfile(API_URL, params)
+
+      items = Array.new
+
+      Lipseys::Parser.parse(tempfile, 'Item') do |node|
+        items.push(map_hash(node))
+      end
+
+      items
     end
 
     def self.all_as_chunks(size, options = {}, &block)
