@@ -89,6 +89,38 @@ module Lipseys
       items
     end
 
+    def self.all_as_chunks(size, options = {}, &block)
+      new(options).all_as_chunks(size, &block)
+    end
+
+    def all_as_chunks(size, &block)
+      params = {
+        email:  @email,
+        pass:   @password
+      }
+      chunker   = Lipseys::Chunker.new(size)
+      tempfile  = stream_to_tempfile(API_URL, params)
+
+      Lipseys::Parser.parse(tempfile, 'Item') do |node|
+        if chunker.is_full?
+          yield(chunker.chunk)
+
+          chunker.reset
+        else
+          chunker.add(map_hash(node))
+        end
+      end
+
+      # HACK-david
+      # since we can't get a count of the items without reading the file
+      # Let's just check to see if we have any left in the chunk
+      if chunker.chunk.count > 0
+        yield(chunker.chunk)
+      end
+
+      tempfile.unlink
+    end
+
     def self.firearms(options = {})
       new(options).firearms
     end
