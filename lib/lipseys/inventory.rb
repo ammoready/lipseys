@@ -42,9 +42,8 @@ module Lipseys
       }
       chunker   = Lipseys::Chunker.new(size)
       tempfile  = stream_to_tempfile(API_URL, params)
-      parser    = Parser.new(tempfile)
 
-      parser.parse('Item') do |node|
+      Lipseys::Parser.parse(tempfile, 'Item') do |node|
         if chunker.is_full?
           yield(chunker.chunk)
 
