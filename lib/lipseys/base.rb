@@ -51,7 +51,7 @@ module Lipseys
       Net::HTTP.get_response(uri) do |response|
         File.open(tempfile, 'w') do |file|
           response.read_body do |chunk|
-            file.write(chunk)
+            file.write(chunk.force_encoding('UTF-8'))
           end
         end
       end
