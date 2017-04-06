@@ -43,5 +43,21 @@ module Lipseys
       msg =~ /Login failed/i
     end
 
+    def stream_to_tempfile(api_url, params)
+      tempfile  = Tempfile.new
+      uri       = URI(api_url)
+      uri.query = URI.encode_www_form(params)
+
+      Net::HTTP.get_response(uri) do |response|
+        File.open(tempfile, 'w') do |file|
+          response.read_body do |chunk|
+            file.write(chunk.force_encoding('UTF-8'))
+          end
+        end
+      end
+
+      tempfile
+    end
+
   end
 end

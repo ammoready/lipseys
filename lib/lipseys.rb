@@ -13,6 +13,9 @@ require 'lipseys/invoice'
 require 'lipseys/order'
 require 'lipseys/user'
 
+require 'lipseys/chunker'
+require 'lipseys/parser'
+
 module Lipseys
   class NotAuthenticated < StandardError; end
 end
