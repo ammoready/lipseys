@@ -15,24 +15,38 @@ module Lipseys
 
     API_URL = 'https://www.lipseys.com/API/pricequantitycatalog.ashx'
 
-
     def initialize(options = {})
       requires!(options, :email, :password)
       @email = options[:email]
       @password = options[:password]
     end
 
-
     def self.all(options = {})
       new(options).all
     end
 
+    def self.all_as_chunks(size, options = {}, &block)
+      new(options).all_as_chunks(size, &block)
+    end
+
+    def self.accessories(options = {})
+      new(options).accessories
+    end
+
+    def self.firearms(options = {})
+      new(options).firearms
+    end
+
+    def self.nfa(options = {})
+      new(options).nfa
+    end
+
+    def self.optics(options = {})
+      new(options).optics
+    end
+
     def all
-      params = {
-        email:  @email,
-        pass:   @password
-      }
-      tempfile = stream_to_tempfile(API_URL, params)
+      tempfile = stream_to_tempfile(API_URL, default_params)
 
       items = Array.new
 
@@ -43,22 +57,13 @@ module Lipseys
       items
     end
 
-    def self.all_as_chunks(size, options = {}, &block)
-      new(options).all_as_chunks(size, &block)
-    end
-
     def all_as_chunks(size, &block)
-      params = {
-        email:  @email,
-        pass:   @password
-      }
-      chunker   = Lipseys::Chunker.new(size)
-      tempfile  = stream_to_tempfile(API_URL, params)
+      chunker  = Lipseys::Chunker.new(size)
+      tempfile = stream_to_tempfile(API_URL, default_params)
 
       Lipseys::Parser.parse(tempfile, 'Item') do |node|
         if chunker.is_full?
           yield(chunker.chunk)
-
           chunker.reset
         else
           chunker.add(map_hash(node))
@@ -75,45 +80,35 @@ module Lipseys
       tempfile.unlink
     end
 
-    def self.firearms(options = {})
-      new(options).firearms
+    def accessories
+      get_items('ACCESSORY')
     end
 
     def firearms
       get_items('FIREARM')
     end
 
-    def self.nfa(options = {})
-      new(options).nfa
-    end
-
     def nfa
       get_items('NFA')
-    end
-
-    def self.optics(options = {})
-      new(options).optics
     end
 
     def optics
       get_items('OPTIC')
     end
 
-    def self.accessories(options = {})
-      new(options).accessories
-    end
-
-    def accessories
-      get_items('ACCESSORY')
-    end
-
     private
 
-    def get_items(item_type = nil)
-      params = { email: @email, pass: @password }
-      params[:itemtype] = item_type unless item_type.nil?
+    def default_params
+      { 
+        email: @email,
+        pass:  @password
+      }
+    end
 
-      xml_doc = get_response_xml(API_URL, params)
+    def get_items(item_type = nil)
+      default_params[:itemtype] = item_type unless item_type.nil?
+
+      xml_doc = get_response_xml(API_URL, default_params)
 
       items = Array.new
 
