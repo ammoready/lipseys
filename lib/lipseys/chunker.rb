@@ -11,14 +11,14 @@ module Lipseys
     end
 
     def add(row)
-      reset if is_full?
+      self.reset! if is_full?
 
       @chunk.push(row)
 
       @current_count += 1
     end
 
-    def reset
+    def reset!
       @chunk.clear
     end
 
