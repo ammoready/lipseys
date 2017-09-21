@@ -31,27 +31,47 @@ module Lipseys
     end
 
     def all(chunk_size, &block)
-        chunker   = Lipseys::Chunker.new(chunk_size)
-        tempfile  = stream_to_tempfile(API_URL, @options)
+      chunker   = Lipseys::Chunker.new(chunk_size)
+      tempfile  = stream_to_tempfile(API_URL, @options)
+      inventory = Array.new
 
-        Lipseys::Parser.parse(tempfile, 'Item') do |node|
-          if chunker.is_full?
-            yield(chunker.chunk)
+      # Let's get the inventory and toss 'er into an array
+      Lipseys::Parser.parse(stream_to_tempfile(Lipseys::Inventory::API_URL, @options), 'Item') do |node|
+        inventory.push({
+          item_identifier: content_for(node, 'ItemNo'),
+          map_price: content_for(node, 'RetailMAP'),
+          quantity: content_for(node, 'QtyOnHand'),
+          price: content_for(node, 'Price')
+        })
+      end
 
-            chunker.reset!
-          else
-            chunker.add(map_hash(node))
+      Lipseys::Parser.parse(tempfile, 'Item') do |node|
+        if chunker.is_full?
+          yield(chunker.chunk)
+
+          chunker.reset!
+        else
+          hash = map_hash(node)
+          availability = inventory.select { |i| i[:item_identifier] == hash[:item_identifier] }.first
+
+          if availability.present?
+            hash[:price]      = availability[:price]
+            hash[:quantity]   = availability[:quantity]
+            hash[:map_price]  = availability[:map_price]
+
+            chunker.add(hash)
           end
         end
+      end
 
-        # HACK-david
-        # since we can't get a count of the items without reading the file
-        # Let's just check to see if we have any left in the chunk
-        if chunker.chunk.count > 0
-          yield(chunker.chunk)
-        end
+      # HACK-david
+      # since we can't get a count of the items without reading the file
+      # Let's just check to see if we have any left in the chunk
+      if chunker.chunk.count > 0
+        yield(chunker.chunk)
+      end
 
-        tempfile.unlink
+      tempfile.unlink
     end
 
     def accessories
