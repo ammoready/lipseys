@@ -97,7 +97,7 @@ module Lipseys
         weight: content_for(node, 'Weight'),
         marp: nil,
         msrp: content_for(node, 'MSRP'),
-        item_identifier: content_for(node, 'ItemNo'),
+        item_identifier: content_for(node, 'UPC'),
         brand: content_for(node, 'MFG'),
         features: {
           model: content_for(node, 'Model'),
