@@ -1,78 +1,17 @@
 module Lipseys
-  # Each method will return an array of catalog items with the following fields:
-  #
-  #   {
-  #     item_number: content_for(item, 'ItemNo'),
-  #     description_1: content_for(item, 'Desc1'),
-  #     description_2: content_for(item, 'Desc2'),
-  #     upc: content_for(item, 'UPC'),
-  #     manufacturer_model_number: content_for(item, 'MFGModelNo'),
-  #     msrp: content_for(item, 'MSRP'),
-  #     model: content_for(item, 'Model'),
-  #     caliber: content_for(item, 'Caliber'),
-  #     manufacturer: content_for(item, 'MFG'),
-  #     type: content_for(item, 'Type'),
-  #     action: content_for(item, 'Action'),
-  #     barrel: content_for(item, 'Barrel'),
-  #     capacity: content_for(item, 'Capacity'),
-  #     finish: content_for(item, 'Finish'),
-  #     length: content_for(item, 'Length'),
-  #     receiver: content_for(item, 'Receiver'),
-  #     safety: content_for(item, 'Safety'),
-  #     sights: content_for(item, 'Sights'),
-  #     stock_frame_grips: content_for(item, 'StockFrameGrips'),
-  #     magazine: content_for(item, 'Magazine'),
-  #     weight: content_for(item, 'Weight'),
-  #     image: "http://www.lipseys.net/images/#{content_for(item, 'Image')}",
-  #     chamber: content_for(item, 'Chamber'),
-  #     drilled_tapped: (content_for(item, 'DrilledTapped') == 'Y'),
-  #     rate_of_twist: content_for(item, 'RateOfTwist'),
-  #     item_type: content_for(item, 'ItemType'),
-  #     feature_1: content_for(item, 'Feature1'),
-  #     feature_2: content_for(item, 'Feature2'),
-  #     feature_3: content_for(item, 'Feature3'),
-  #     shipping_weight: content_for(item, 'ShippingWeight'),
-  #     bound_book: {
-  #       model: content_for(item, 'BoundBookModel'),
-  #       type: content_for(item, 'BoundBookType'),
-  #       manufacturer: content_for(item, 'BoundBookMFG'),
-  #     },
-  #     nfa: {
-  #       thread_pattern: content_for(item, 'NFAThreadPattern'),
-  #       attach_method: content_for(item, 'NFAAttachMethod'),
-  #       baffle: content_for(item, 'NFABaffle'),
-  #       can_disassemble: (content_for(item, 'NFACanDisassemble') == 'Y'),
-  #       construction: content_for(item, 'NFAConstruction'),
-  #       db_reduction: content_for(item, 'NFAdbReduction'),
-  #       diameter: content_for(item, 'NFADiameter'),
-  #       form_3_caliber: content_for(item, 'NFAForm3Caliber'),
-  #     },
-  #     optic: {
-  #       magnification: content_for(item, 'Magnification'),
-  #       maintube: content_for(item, 'Maintube'),
-  #       objective: content_for(item, 'Objective'),
-  #       adjustable_objective: (content_for(item, 'AdjustableObjective') == 'Y'),
-  #       optic_adjustments: content_for(item, 'OpticAdjustments'),
-  #       reticle: content_for(item, 'Reticle'),
-  #       illuminated_reticle: (content_for(item, 'IlluminatedReticle') == 'Y'),
-  #     }
-  #   }
   class Catalog < Base
 
     API_URL = 'https://www.lipseys.com/API/catalog.ashx'
 
     def initialize(options = {})
-      requires!(options, :email, :password)
-      @email = options[:email]
-      @password = options[:password]
+      requires!(options, :email, :pass)
+
+      @options = options
     end
 
-    def self.all(options = {})
-      new(options).all
-    end
-
-    def self.all_as_chunks(size, options = {}, &block)
-      new(options).all_as_chunks(size, &block)
+    def self.all(chunk_size = 15, options = {}, &block)
+      requires!(options, :email, :pass)
+      new(options).all(chunk_size, &block)
     end
 
     def self.accessories(options = {})
@@ -91,39 +30,28 @@ module Lipseys
       new(options).optics
     end
 
-    def all
-      tempfile = stream_to_tempfile(API_URL, default_params)
+    def all(chunk_size, &block)
+        chunker   = Lipseys::Chunker.new(chunk_size)
+        tempfile  = stream_to_tempfile(API_URL, @options)
 
-      items = Array.new
+        Lipseys::Parser.parse(tempfile, 'Item') do |node|
+          if chunker.is_full?
+            yield(chunker.chunk)
 
-      Lipseys::Parser.parse(tempfile, 'Item') do |node|
-        items.push(map_hash(node))
-      end
-
-      items
-    end
-
-    def all_as_chunks(size, &block)
-      chunker  = Lipseys::Chunker.new(size)
-      tempfile = stream_to_tempfile(API_URL, default_params)
-
-      Lipseys::Parser.parse(tempfile, 'Item') do |node|
-        if chunker.is_full?
-          yield(chunker.chunk)
-          chunker.reset
-        else
-          chunker.add(map_hash(node))
+            chunker.reset!
+          else
+            chunker.add(map_hash(node))
+          end
         end
-      end
 
-      # HACK-david
-      # since we can't get a count of the items without reading the file
-      # Let's just check to see if we have any left in the chunk
-      if chunker.chunk.count > 0
-        yield(chunker.chunk)
-      end
+        # HACK-david
+        # since we can't get a count of the items without reading the file
+        # Let's just check to see if we have any left in the chunk
+        if chunker.chunk.count > 0
+          yield(chunker.chunk)
+        end
 
-      tempfile.unlink
+        tempfile.unlink
     end
 
     def accessories
@@ -144,17 +72,10 @@ module Lipseys
 
     private
 
-    def default_params
-      { 
-        email: @email,
-        pass:  @password
-      }
-    end
-
     def get_items(item_type = nil)
-      default_params[:itemtype] = item_type unless item_type.nil?
+      @options[:itemtype] = item_type unless item_type.nil?
 
-      xml_doc = get_response_xml(API_URL, default_params)
+      xml_doc = get_response_xml(API_URL, @options)
 
       items = Array.new
 
@@ -167,59 +88,30 @@ module Lipseys
 
     def map_hash(node)
       {
-        item_number: content_for(node, 'ItemNo'),
-        description_1: content_for(node, 'Desc1'),
-        description_2: content_for(node, 'Desc2'),
+        name: content_for(node, 'Model'),
         upc: content_for(node, 'UPC'),
-        manufacturer_model_number: content_for(node, 'MFGModelNo'),
-        msrp: content_for(node, 'MSRP'),
-        model: content_for(node, 'Model'),
-        caliber: content_for(node, 'Caliber'),
-        manufacturer: content_for(node, 'MFG'),
-        type: content_for(node, 'Type'),
-        action: content_for(node, 'Action'),
-        barrel: content_for(node, 'Barrel'),
-        capacity: content_for(node, 'Capacity'),
-        finish: content_for(node, 'Finish'),
-        length: content_for(node, 'Length'),
-        receiver: content_for(node, 'Receiver'),
-        safety: content_for(node, 'Safety'),
-        sights: content_for(node, 'Sights'),
-        stock_frame_grips: content_for(node, 'StockFrameGrips'),
-        magazine: content_for(node, 'Magazine'),
+        short_description: content_for(node, 'Desc1'),
+        long_description: "#{content_for(node, 'Desc1')} #{content_for(node, 'Desc2')}",
+        category: content_for(node, 'Type'),
+        price: nil,
         weight: content_for(node, 'Weight'),
-        image: "http://www.lipseys.net/images/#{content_for(node, 'Image')}",
-        chamber: content_for(node, 'Chamber'),
-        drilled_tapped: (content_for(node, 'DrilledTapped') == 'Y'),
-        rate_of_twist: content_for(node, 'RateOfTwist'),
-        item_type: content_for(node, 'ItemType'),
-        feature_1: content_for(node, 'Feature1'),
-        feature_2: content_for(node, 'Feature2'),
-        feature_3: content_for(node, 'Feature3'),
-        shipping_weight: content_for(node, 'ShippingWeight'),
-        bound_book: {
-          model: content_for(node, 'BoundBookModel'),
-          type: content_for(node, 'BoundBookType'),
-          manufacturer: content_for(node, 'BoundBookMFG'),
-        },
-        nfa: {
-          thread_pattern: content_for(node, 'NFAThreadPattern'),
-          attach_method: content_for(node, 'NFAAttachMethod'),
-          baffle: content_for(node, 'NFABaffle'),
-          can_disassemble: (content_for(node, 'NFACanDisassemble') == 'Y'),
-          construction: content_for(node, 'NFAConstruction'),
-          db_reduction: content_for(node, 'NFAdbReduction'),
-          diameter: content_for(node, 'NFADiameter'),
-          form_3_caliber: content_for(node, 'NFAForm3Caliber'),
-        },
-        optic: {
-          magnification: content_for(node, 'Magnification'),
-          maintube: content_for(node, 'Maintube'),
-          objective: content_for(node, 'Objective'),
-          adjustable_objective: (content_for(node, 'AdjustableObjective') == 'Y'),
-          optic_adjustments: content_for(node, 'OpticAdjustments'),
-          reticle: content_for(node, 'Reticle'),
-          illuminated_reticle: (content_for(node, 'IlluminatedReticle') == 'Y'),
+        marp: nil,
+        msrp: content_for(node, 'MSRP'),
+        item_identifier: content_for(node, 'ItemNo'),
+        brand: content_for(node, 'MFG'),
+        features: {
+          model: content_for(node, 'Model'),
+          caliber: content_for(node, 'Caliber'),
+          action: content_for(node, 'Action'),
+          barrel: content_for(node, 'Barrel'),
+          capacity: content_for(node, 'Capacity'),
+          finish: content_for(node, 'Finish'),
+          length: content_for(node, 'Length'),
+          receiver: content_for(node, 'Receiver'),
+          safety: content_for(node, 'Safety'),
+          sights: content_for(node, 'Sights'),
+          magazine: content_for(node, 'Magazine'),
+          chamber: content_for(node, 'Chamber')
         }
       }
     end
