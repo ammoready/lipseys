@@ -1,32 +1,16 @@
 module Lipseys
-  # Each method will return an array of inventory items with the following fields:
-  #
-  #   {
-  #     item_number: content_for(item, 'ItemNo'),
-  #     upc: content_for(item, 'UPC'),
-  #     manufacturer_model_number: content_for(item, 'MFGModelNo'),
-  #     quantity_on_hand: content_for(item, 'QtyOnHand'),
-  #     allocation: (content_for(item, 'Allocation') == 'Y'),
-  #     price: content_for(item, 'Price'),
-  #     on_sale: (content_for(item, 'OnSale') == 'Y'),
-  #     retail_map: content_for(item, 'RetailMAP')
-  #   }
   class Inventory < Base
 
     API_URL = 'https://www.lipseys.com/API/pricequantitycatalog.ashx'
 
     def initialize(options = {})
-      requires!(options, :email, :password)
-      @email = options[:email]
-      @password = options[:password]
+      requires!(options, :email, :pass)
+
+      @options = options
     end
 
-    def self.all(options = {})
-      new(options).all
-    end
-
-    def self.all_as_chunks(size, options = {}, &block)
-      new(options).all_as_chunks(size, &block)
+    def self.all(chunk_size = 15, options = {}, &block)
+      new(options).all(chunk_size, &block)
     end
 
     def self.accessories(options = {})
@@ -45,26 +29,14 @@ module Lipseys
       new(options).optics
     end
 
-    def all
-      tempfile = stream_to_tempfile(API_URL, default_params)
-
-      items = Array.new
-
-      Lipseys::Parser.parse(tempfile, 'Item') do |node|
-        items.push(map_hash(node))
-      end
-
-      items
-    end
-
-    def all_as_chunks(size, &block)
+    def all(size, &block)
       chunker  = Lipseys::Chunker.new(size)
-      tempfile = stream_to_tempfile(API_URL, default_params)
+      tempfile = stream_to_tempfile(API_URL, @options)
 
       Lipseys::Parser.parse(tempfile, 'Item') do |node|
         if chunker.is_full?
           yield(chunker.chunk)
-          chunker.reset
+          chunker.reset!
         else
           chunker.add(map_hash(node))
         end
@@ -98,17 +70,10 @@ module Lipseys
 
     private
 
-    def default_params
-      { 
-        email: @email,
-        pass:  @password
-      }
-    end
-
     def get_items(item_type = nil)
-      default_params[:itemtype] = item_type unless item_type.nil?
+      @options[:itemtype] = item_type unless item_type.nil?
 
-      xml_doc = get_response_xml(API_URL, default_params)
+      xml_doc = get_response_xml(API_URL, @options)
 
       items = Array.new
 
@@ -121,14 +86,9 @@ module Lipseys
 
     def map_hash(node)
       {
-        item_number: content_for(node, 'ItemNo'),
-        upc: content_for(node, 'UPC'),
-        manufacturer_model_number: content_for(node, 'MFGModelNo'),
-        quantity_on_hand: content_for(node, 'QtyOnHand'),
-        allocation: (content_for(node, 'Allocation') == 'Y'),
-        price: content_for(node, 'Price'),
-        on_sale: (content_for(node, 'OnSale') == 'Y'),
-        retail_map: content_for(node, 'RetailMAP')
+        item_identifier: content_for(node, 'ItemNo'),
+        quantity: content_for(node, 'QtyOnHand'),
+        price: content_for(node, 'Price')
       }
     end
 
