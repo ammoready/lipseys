@@ -115,8 +115,6 @@ module Lipseys
         category: content_for(node, 'Type'),
         price: nil,
         weight: content_for(node, 'Weight'),
-        marp: nil,
-        msrp: content_for(node, 'MSRP'),
         item_identifier: content_for(node, 'ItemNo'),
         brand: content_for(node, 'MFG'),
         features: {
