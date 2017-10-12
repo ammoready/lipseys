@@ -4,7 +4,7 @@ module Lipseys
     API_URL = 'https://www.lipseys.com/API/validate.asmx?WSDL'
 
     def initialize(options = {})
-      requires!(options, :email, :password)
+      requires!(options, :username, :password)
       @options = options
     end
 
@@ -13,7 +13,7 @@ module Lipseys
     end
 
     def validate
-      body = { Credentials: { EmailAddress: @options[:email], Password: @options[:password] } }
+      body = { Credentials: { EmailAddress: @options[:username], Password: @options[:password] } }
       response = soap_client(API_URL).call(:validate_dealer, message: body)
 
       result = response.body[:validate_dealer_response][:validate_dealer_result]

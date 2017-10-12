@@ -4,7 +4,7 @@ module Lipseys
     API_URL = 'https://www.lipseys.com/API/pricequantitycatalog.ashx'
 
     def initialize(options = {})
-      requires!(options, :email, :pass)
+      requires!(options, :username, :password)
 
       @options = options
     end
