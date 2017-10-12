@@ -13,8 +13,8 @@ module Lipseys
   class Order < SoapClient
 
     def initialize(options = {})
-      requires!(options, :email, :password, :quantity, :purchase_order)
-      @email = options[:email]
+      requires!(options, :username, :password, :quantity, :purchase_order)
+      @email = options[:username]
       @password = options[:password]
       @quantity = options[:quantity]
 

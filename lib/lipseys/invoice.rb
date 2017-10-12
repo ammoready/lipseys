@@ -29,8 +29,8 @@ module Lipseys
   class Invoice < SoapClient
 
     def initialize(options = {})
-      requires!(options, :email, :password)
-      @email = options[:email]
+      requires!(options, :username, :password)
+      @email = options[:username]
       @password = options[:password]
 
       @order_number = options[:order_number]

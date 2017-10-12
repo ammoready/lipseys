@@ -4,13 +4,13 @@ module Lipseys
     API_URL = 'https://www.lipseys.com/API/catalog.ashx'
 
     def initialize(options = {})
-      requires!(options, :email, :pass)
+      requires!(options, :username, :password)
 
       @options = options
     end
 
     def self.all(chunk_size = 15, options = {}, &block)
-      requires!(options, :email, :pass)
+      requires!(options, :username, :password)
       new(options).all(chunk_size, &block)
     end
 
