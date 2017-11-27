@@ -28,7 +28,7 @@ module Lipseys
 
     def get_response_xml(api_url, params)
       uri = URI(api_url)
-      uri.query = URI.encode_www_form(params)
+      uri.query = URI.encode_www_form(params_to_auth(params))
 
       response = Net::HTTP.get_response(uri)
       xml_doc = Nokogiri::XML(response.body)
@@ -46,7 +46,7 @@ module Lipseys
     def stream_to_tempfile(api_url, params)
       tempfile  = Tempfile.new
       uri       = URI(api_url)
-      uri.query = URI.encode_www_form(params)
+      uri.query = URI.encode_www_form(params_to_auth(params))
 
       Net::HTTP.get_response(uri) do |response|
         File.open(tempfile, 'w') do |file|
@@ -57,6 +57,15 @@ module Lipseys
       end
 
       tempfile
+    end
+
+    private
+
+    def params_to_auth(params)
+      {
+        email: params.fetch(:username),
+        pass: params.fetch(:password),
+      }
     end
 
   end
