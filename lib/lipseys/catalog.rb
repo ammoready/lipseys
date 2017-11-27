@@ -54,7 +54,7 @@ module Lipseys
           hash = map_hash(node)
           availability = inventory.select { |i| i[:item_identifier] == hash[:item_identifier] }.first
 
-          if availability.present?
+          if availability
             hash[:price]      = availability[:price]
             hash[:quantity]   = availability[:quantity]
             hash[:map_price]  = availability[:map_price]
