@@ -117,6 +117,7 @@ module Lipseys
         weight: content_for(node, 'Weight'),
         item_identifier: content_for(node, 'ItemNo'),
         brand: content_for(node, 'MFG'),
+        mfg_number: content_for(node, 'MFGModelNo'),
         features: {
           model: content_for(node, 'Model'),
           caliber: content_for(node, 'Caliber'),
