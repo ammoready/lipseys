@@ -118,6 +118,7 @@ module Lipseys
         item_identifier: content_for(node, 'ItemNo'),
         brand: content_for(node, 'MFG'),
         mfg_number: content_for(node, 'MFGModelNo'),
+        image_url: "http://www.lipseys.net/images/#{content_for(node, 'Image')}",
         features: {
           model: content_for(node, 'Model'),
           caliber: content_for(node, 'Caliber'),
