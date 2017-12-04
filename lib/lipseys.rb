@@ -12,6 +12,7 @@ require 'lipseys/inventory'
 require 'lipseys/invoice'
 require 'lipseys/order'
 require 'lipseys/user'
+require 'lipseys/image'
 
 require 'lipseys/chunker'
 require 'lipseys/parser'
