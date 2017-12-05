@@ -40,7 +40,7 @@ module Lipseys
 
     def not_authenticated?(xml_doc)
       msg = content_for(xml_doc, 'CatalogError')
-      msg =~ /Login failed/i
+      msg =~ /Login failed/i || msg =~ /Credentials Not Valid/i
     end
 
     def stream_to_tempfile(api_url, params)
