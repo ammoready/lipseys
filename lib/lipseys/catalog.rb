@@ -108,10 +108,10 @@ module Lipseys
 
     def map_hash(node)
       {
-        name: content_for(node, 'Model'),
+        name: content_for(node, 'Desc1'),
+        model: content_for(node, 'Model'),
         upc: content_for(node, 'UPC'),
-        short_description: content_for(node, 'Desc1'),
-        long_description: "#{content_for(node, 'Desc1')} #{content_for(node, 'Desc2')}",
+        short_description: content_for(node, 'Desc2'),
         category: content_for(node, 'Type'),
         price: nil,
         weight: content_for(node, 'Weight'),
@@ -120,7 +120,6 @@ module Lipseys
         mfg_number: content_for(node, 'MFGModelNo'),
         image_url: "http://www.lipseys.net/images/#{content_for(node, 'Image')}",
         features: {
-          model: content_for(node, 'Model'),
           caliber: content_for(node, 'Caliber'),
           action: content_for(node, 'Action'),
           barrel: content_for(node, 'Barrel'),
