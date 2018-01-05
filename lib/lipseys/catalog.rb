@@ -55,9 +55,9 @@ module Lipseys
           availability = inventory.select { |i| i[:item_identifier] == hash[:item_identifier] }.first
 
           if availability
-            hash[:price]      = availability[:price]
-            hash[:quantity]   = availability[:quantity]
-            hash[:map_price]  = availability[:map_price]
+            hash[:price]     = availability[:price]
+            hash[:quantity]  = availability[:quantity]
+            hash[:map_price] = availability[:map_price]
 
             chunker.add(hash)
           end
@@ -107,9 +107,13 @@ module Lipseys
     end
 
     def map_hash(node)
+      model      = content_for(node, 'Model')
+      mfg_number = content_for(node, 'MFGModelNo')
+      name       = "#{model} #{mfg_number}"
+
       {
-        name: content_for(node, 'Desc1'),
-        model: content_for(node, 'Model'),
+        name: name,
+        model: model,
         upc: content_for(node, 'UPC'),
         short_description: content_for(node, 'Desc2'),
         category: content_for(node, 'Type'),
@@ -117,20 +121,20 @@ module Lipseys
         weight: content_for(node, 'Weight'),
         item_identifier: content_for(node, 'ItemNo'),
         brand: content_for(node, 'MFG'),
-        mfg_number: content_for(node, 'MFGModelNo'),
+        mfg_number: mfg_number,
         image_url: "http://www.lipseys.net/images/#{content_for(node, 'Image')}",
         features: {
-          caliber: content_for(node, 'Caliber'),
-          action: content_for(node, 'Action'),
-          barrel: content_for(node, 'Barrel'),
+          caliber:  content_for(node, 'Caliber'),
+          action:   content_for(node, 'Action'),
+          barrel:   content_for(node, 'Barrel'),
           capacity: content_for(node, 'Capacity'),
-          finish: content_for(node, 'Finish'),
-          length: content_for(node, 'Length'),
+          finish:   content_for(node, 'Finish'),
+          length:   content_for(node, 'Length'),
           receiver: content_for(node, 'Receiver'),
-          safety: content_for(node, 'Safety'),
-          sights: content_for(node, 'Sights'),
+          safety:   content_for(node, 'Safety'),
+          sights:   content_for(node, 'Sights'),
           magazine: content_for(node, 'Magazine'),
-          chamber: content_for(node, 'Chamber')
+          chamber:  content_for(node, 'Chamber')
         }
       }
     end
