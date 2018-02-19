@@ -13,6 +13,10 @@ module Lipseys
       new(options).all(chunk_size, &block)
     end
 
+    def self.quantity(chunk_size = 100, options = {}, &block)
+      new(options).all(chunk_size, &block)
+    end
+
     def self.accessories(options = {})
       new(options).accessories
     end
@@ -45,6 +49,29 @@ module Lipseys
       # HACK-david
       # since we can't get a count of the items without reading the file
       # Let's just check to see if we have any left in the chunk
+      if chunker.chunk.count > 0
+        yield(chunker.chunk)
+      end
+
+      tempfile.unlink
+    end
+
+    def quantity(size, &block)
+      chunker  = Lipseys::Chunker.new(size)
+      tempfile = stream_to_tempfile(API_URL, @options)
+
+      Lipseys::Parser.parse(tempfile, 'Item') do |node|
+        if chunker.is_full?
+          yield(chunker.chunk)
+          chunker.reset!
+        else
+          chunker.add({
+            item_identifier: content_for(node, 'ItemNo'),
+            quantity: content_for(node, 'QtyOnHand')
+          })
+        end
+      end
+
       if chunker.chunk.count > 0
         yield(chunker.chunk)
       end
