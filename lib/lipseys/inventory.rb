@@ -13,6 +13,10 @@ module Lipseys
       new(options).all(chunk_size, &block)
     end
 
+    def self.get_quantity_file(options = {})
+      new(options).get_quantity_file
+    end
+
     def self.quantity(chunk_size = 100, options = {}, &block)
       new(options).all(chunk_size, &block)
     end
@@ -54,6 +58,20 @@ module Lipseys
       end
 
       tempfile.unlink
+    end
+
+    def get_quantity_file
+      quantity_tempfile = stream_to_tempfile(API_URL, @options)
+      tempfile          = Tempfile.new
+
+      Lipseys::Parser.parse(quantity_tempfile, 'Item') do |node|
+        tempfile.puts("#{content_for(node, 'ItemNo')},#{content_for(node, 'QtyOnHand')}")
+      end
+
+      quantity_tempfile.unlink
+      tempfile.close
+
+      tempfile.path
     end
 
     def quantity(size, &block)
