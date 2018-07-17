@@ -1,7 +1,9 @@
 module Lipseys
   class Catalog < Base
 
-    API_URL = 'https://www.lipseys.com/API/catalog.ashx'
+    CHUNK_SIZE = 500
+    API_URL    = 'https://www.lipseys.com/API/catalog.ashx'
+    ITEMTYPES  = %w(ACCESSORY FIREARM NFA OPTIC)
 
     def initialize(options = {})
       requires!(options, :username, :password)
@@ -9,34 +11,18 @@ module Lipseys
       @options = options
     end
 
-    def self.all(chunk_size = 15, options = {}, &block)
+    def self.all(options = {}, &block)
       requires!(options, :username, :password)
-      new(options).all(chunk_size, &block)
+      new(options).all &block
     end
 
-    def self.accessories(options = {})
-      new(options).accessories
-    end
-
-    def self.firearms(options = {})
-      new(options).firearms
-    end
-
-    def self.nfa(options = {})
-      new(options).nfa
-    end
-
-    def self.optics(options = {})
-      new(options).optics
-    end
-
-    def all(chunk_size, &block)
-      chunker   = Lipseys::Chunker.new(chunk_size)
-      tempfile  = stream_to_tempfile(API_URL, @options)
-      inventory = Array.new
+    def all(&block)
+      inventory_tempfile = stream_to_tempfile(Lipseys::Inventory::API_URL, @options)
+      catalog_tempfile   = stream_to_tempfile(API_URL, @options)
+      inventory          = Array.new
 
       # Let's get the inventory and toss 'er into an array
-      Lipseys::Parser.parse(stream_to_tempfile(Lipseys::Inventory::API_URL, @options), 'Item') do |node|
+      Lipseys::Parser.parse(inventory_tempfile, 'Item') do |node|
         inventory.push({
           item_identifier: content_for(node, 'ItemNo'),
           map_price: content_for(node, 'RetailMAP'),
@@ -45,66 +31,25 @@ module Lipseys
         })
       end
 
-      Lipseys::Parser.parse(tempfile, 'Item') do |node|
-        if chunker.is_full?
-          yield(chunker.chunk)
+      Lipseys::Parser.parse(catalog_tempfile, 'Item') do |node|
+        hash = map_hash(node)
+        availability = inventory.select { |i| i[:item_identifier] == hash[:item_identifier] }.first
 
-          chunker.reset!
-        else
-          hash = map_hash(node)
-          availability = inventory.select { |i| i[:item_identifier] == hash[:item_identifier] }.first
-
-          if availability
-            hash[:price]     = availability[:price]
-            hash[:quantity]  = availability[:quantity]
-            hash[:map_price] = availability[:map_price]
-
-            chunker.add(hash)
-          end
+        if availability
+          hash[:price]     = availability[:price]
+          hash[:quantity]  = availability[:quantity]
+          hash[:map_price] = availability[:map_price]
         end
+
+        yield hash
       end
 
-      # HACK-david
-      # since we can't get a count of the items without reading the file
-      # Let's just check to see if we have any left in the chunk
-      if chunker.chunk.count > 0
-        yield(chunker.chunk)
-      end
-
-      tempfile.unlink
-    end
-
-    def accessories
-      get_items('ACCESSORY')
-    end
-
-    def firearms
-      get_items('FIREARM')
-    end
-
-    def nfa
-      get_items('NFA')
-    end
-
-    def optics
-      get_items('OPTIC')
+      inventory_tempfile.unlink
+      catalog_tempfile.unlink
+      true
     end
 
     private
-
-    def get_items(item_type = nil)
-      @options[:itemtype] = item_type unless item_type.nil?
-
-      xml_doc = get_response_xml(API_URL, @options)
-
-      items = Array.new
-
-      xml_doc.css('LipseysCatalog/Item').each do |item|
-        items.push(map_hash(item))
-      end
-
-      items
-    end
 
     def map_hash(node)
       model      = content_for(node, 'Model')
