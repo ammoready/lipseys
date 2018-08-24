@@ -54,7 +54,7 @@ module Lipseys
     def map_hash(node)
       model      = content_for(node, 'Model')
       mfg_number = content_for(node, 'MFGModelNo')
-      name       = "#{model} #{mfg_number}"
+      name       = "#{model} #{mfg_number}".lstrip.rstrip
 
       {
         name: name,
@@ -67,7 +67,6 @@ module Lipseys
         item_identifier: content_for(node, 'ItemNo'),
         brand: content_for(node, 'MFG'),
         mfg_number: mfg_number,
-        image_url: "http://www.lipseys.net/images/#{content_for(node, 'Image')}",
         features: {
           caliber:  content_for(node, 'Caliber'),
           action:   content_for(node, 'Action'),
