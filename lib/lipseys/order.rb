@@ -26,7 +26,6 @@ module Lipseys
       raise ArgumentError.new("Either :item_number or :upc must be given") if @item_number_or_upc.nil?
     end
 
-
     def self.submit!(*args)
       new(*args).submit!
     end
