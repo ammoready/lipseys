@@ -11,15 +11,16 @@ module Lipseys
       @options = options
     end
 
-    def self.all(options = {}, &block)
+    def self.all(options = {})
       requires!(options, :username, :password)
-      new(options).all &block
+      new(options).all
     end
 
-    def all(&block)
+    def all
       inventory_tempfile = stream_to_tempfile(Lipseys::Inventory::API_URL, @options)
       catalog_tempfile   = stream_to_tempfile(API_URL, @options)
-      inventory          = Array.new
+      inventory          = []
+      items              = []
 
       # Let's get the inventory and toss 'er into an array
       Lipseys::Parser.parse(inventory_tempfile, 'Item') do |node|
@@ -32,21 +33,22 @@ module Lipseys
       end
 
       Lipseys::Parser.parse(catalog_tempfile, 'Item') do |node|
-        hash = map_hash(node)
-        availability = inventory.select { |i| i[:item_identifier] == hash[:item_identifier] }.first
+        item = map_hash(node)
+        availability = inventory.select { |i| i[:item_identifier] == item[:item_identifier] }.first
 
         if availability
-          hash[:price]     = availability[:price]
-          hash[:quantity]  = availability[:quantity]
-          hash[:map_price] = availability[:map_price]
+          item[:price]     = availability[:price]
+          item[:quantity]  = availability[:quantity]
+          item[:map_price] = availability[:map_price]
         end
 
-        yield hash
+        items << item
       end
 
       inventory_tempfile.unlink
       catalog_tempfile.unlink
-      true
+
+      items
     end
 
     private
