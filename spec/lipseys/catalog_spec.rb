@@ -14,22 +14,21 @@ describe Lipseys::Catalog do
   end
 
   describe '.all' do
-    it 'Yields each item to a block' do
-      count = 0
+    it 'returns an array of all items' do
+      items = Lipseys::Catalog.all(options)
 
-      Lipseys::Catalog.all(options) do |item|
-        count += 1
-        case count
-        when 1
+      items.each_with_index do |item, index|
+        case index
+        when 0
           expect(item[:upc]).to  eq('968000000001')
           expect(item[:name]).to eq('A00111 TWIYO A00111')
-        when 2
+        when 1
           expect(item[:upc]).to  eq('968000000002')
           expect(item[:name]).to eq('A00112 RHYZIO A00112')
         end
       end
 
-      expect(count).to eq(44)
+      expect(items.count).to eq(44)
     end
   end
 
