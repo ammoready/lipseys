@@ -11,22 +11,21 @@ describe Lipseys::Inventory do
   end
 
   describe '.all' do
-    it 'Yields each item to a block' do
-      count = 0
+    it 'returns an array of items' do
+      items = Lipseys::Inventory.all(options)
 
-      Lipseys::Inventory.all(options) do |item|
-        count += 1
-        case count
-        when 1
+      items.each_with_index do |item, index|
+        case index
+        when 0
           expect(item[:item_identifier]).to  eq('ABC00111')
           expect(item[:price]).to eq('500.00')
-        when 2
+        when 1
           expect(item[:item_identifier]).to  eq('ABC00112')
           expect(item[:price]).to eq('400.00')
         end
       end
 
-      expect(count).to eq(44)
+      expect(items.count).to eq(44)
     end
   end
 

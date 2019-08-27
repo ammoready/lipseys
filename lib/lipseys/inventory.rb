@@ -9,26 +9,31 @@ module Lipseys
       @options = options
     end
 
-    def self.all(options = {}, &block)
-      new(options).all &block
+    def self.all(options = {})
+      new(options).all
     end
 
-    def self.quantity(options = {}, &block)
-      new(options).all &block
+    def self.quantity(options = {})
+      new(options).all
     end
 
     def self.get_quantity_file(options = {})
       new(options).get_quantity_file
     end
 
-    def all(&block)
+    def all
+      items    = []
       tempfile = stream_to_tempfile(API_URL, @options)
 
       Lipseys::Parser.parse(tempfile, 'Item') do |node|
-        yield map_hash(node)
+        _map_hash = map_hash(node)
+
+        items << _map_hash unless _map_hash.nil?
       end
 
       tempfile.unlink
+
+      items
     end
 
     def get_quantity_file
