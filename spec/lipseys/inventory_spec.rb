@@ -2,11 +2,11 @@ require "spec_helper"
 
 describe Lipseys::Inventory do
 
-  let(:default_headers) { { 'Accept' => '*/*', 'Host' => 'www.lipseys.com' } }
+  let(:default_headers) { { 'Accept' => '*/*', 'Host' => '184.188.80.195' } }
   let(:options) { { username: '123', password: 'abc' } }
 
   before do
-    stub_request(:get, "https://www.lipseys.com/API/pricequantitycatalog.ashx?email=123&pass=abc").
+    stub_request(:get, "http://184.188.80.195/API/pricequantitycatalog.ashx?email=123&pass=abc").
       with(headers: default_headers).to_return(status: 200, body: FixtureHelper.get_fixture_file('LipseysInventoryPricing.xml').read)
   end
 
