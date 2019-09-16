@@ -1,7 +1,7 @@
 module Lipseys
   class User < SoapClient
 
-    API_URL = 'https://www.lipseys.com/API/validate.asmx?WSDL'
+    API_URL = 'http://184.188.80.195/API/validate.asmx?WSDL'
 
     def initialize(options = {})
       requires!(options, :username, :password)

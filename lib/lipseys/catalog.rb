@@ -2,7 +2,7 @@ module Lipseys
   class Catalog < Base
 
     CHUNK_SIZE = 500
-    API_URL    = 'https://www.lipseys.com/API/catalog.ashx'
+    API_URL    = 'http://184.188.80.195/API/catalog.ashx'
     ITEMTYPES  = %w(ACCESSORY FIREARM NFA OPTIC)
 
     def initialize(options = {})

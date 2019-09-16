@@ -1,7 +1,7 @@
 module Lipseys
   class SoapClient < Base
 
-    API_URL = 'http://www.lipseys.com/webservice/LipseyAPI.asmx?WSDL'
+    API_URL = 'http://184.188.80.195/webservice/LipseyAPI.asmx?WSDL'
 
     protected
 

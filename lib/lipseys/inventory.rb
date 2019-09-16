@@ -1,7 +1,7 @@
 module Lipseys
   class Inventory < Base
 
-    API_URL = 'https://www.lipseys.com/API/pricequantitycatalog.ashx'
+    API_URL = 'http://184.188.80.195/API/pricequantitycatalog.ashx'
 
     def initialize(options = {})
       requires!(options, :username, :password)

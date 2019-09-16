@@ -1,7 +1,7 @@
 module Lipseys
   class Image < Base
 
-    API_URL = 'https://www.lipseys.com/API/catalog.ashx'
+    API_URL = 'http://184.188.80.195/API/catalog.ashx'
 
     def initialize(options = {})
       requires!(options, :username, :password)
