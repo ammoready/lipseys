@@ -1,5 +1,6 @@
 require 'lipseys/api'
 require 'lipseys/base'
+require 'lipseys/catalog'
 require 'lipseys/client'
 require 'lipseys/error'
 require 'lipseys/items'
