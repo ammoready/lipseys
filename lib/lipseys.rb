@@ -1,10 +1,8 @@
-require 'lipseys/version'
-
-
+require 'lipseys/api'
 require 'lipseys/base'
-
-require 'lipseys/catalog'
-require 'lipseys/inventory'
-require 'lipseys/order'
+require 'lipseys/client'
+require 'lipseys/error'
+require 'lipseys/items'
+require 'lipseys/response'
 require 'lipseys/user'
-require 'lipseys/image'
+require 'lipseys/version'

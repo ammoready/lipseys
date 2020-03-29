@@ -1,4 +1,5 @@
 require 'lipseys/api'
+require 'lipseys/items'
 
 module Lipseys
   class Client < Base
@@ -12,6 +13,10 @@ module Lipseys
       @options = options
 
       authenticate!
+    end
+
+    def items
+      @items ||= Lipseys::Items.new(self)
     end
 
     private
