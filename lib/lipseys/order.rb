@@ -1,74 +1,55 @@
+require 'lipseys/api'
+
 module Lipseys
-  # Required options when submitting an order:
-  #
-  # * `:email` and `:password`
-  # * `:item_number` OR `:upc`
-  # * `:quantity`
-  # * `:purchase_order`
-  #
-  # Optional order params:
-  #
-  # * `:notify_by_email` (boolean)
-  # * `:note`
-  class Order < SoapClient
+  class Order < Base
 
-    def initialize(options = {})
-      requires!(options, :username, :password, :quantity, :purchase_order)
-      @email = options[:username]
-      @password = options[:password]
-      @quantity = options[:quantity]
+    include Lipseys::API
 
-      @notify_by_email = (options[:notify_by_email] == true ? 'Y' : nil)
-      @purchase_order = options[:purchase_order]
-      @note = options[:note]
+    SUBMIT_TO_STORE_ATTRS = {
+      permitted: %i( po_number disable_email items item_number quantity note ).freeze,
+      required:  %i( items item_number quantity ).freeze
+    }
 
-      @item_number_or_upc = options[:item_number] || options[:upc]
-      raise ArgumentError.new("Either :item_number or :upc must be given") if @item_number_or_upc.nil?
+    SUBMIT_TO_DROP_SHIP_ATTRS = {
+      permitted: %i(
+        warehouse po_number billing_name billing_address_line_1 billing_address_line_2 billing_address_city
+        billing_address_state billing_address_zip shipping_name shipping_address_line_1 shipping_address_line_2
+        shipping_address_city shipping_address_state shipping_address_zip message_for_sales_exec disable_email
+        items item_number quantity note overnight
+      ).freeze,
+      required: %i(
+        po_number billing_name billing_address_line_1  billing_address_city billing_address_state billing_address_zip
+        shipping_name shipping_address_line_1 shipping_address_city shipping_address_state shipping_address_zip
+        items item_number quantity
+      ).freeze
+    }
+
+    ENDPOINTS = {
+      submit_to_store:     "order/apiorder".freeze,
+      submit_to_drop_ship: "order/dropship".freeze,
+    }
+
+    def initialize(client)
+      @client = client
     end
 
+    def submit_to_store(order_data)
+      requires!(order_data, *SUBMIT_TO_STORE_ATTRS[:required])
 
-    def self.submit!(*args)
-      new(*args).submit!
+      endpoint = ENDPOINTS[:submit_to_store]
+      headers = [
+        *auth_header(@client.access_token),
+        *content_type_header('application/json'),
+      ].to_h
+
+      order_data = standardize_body_data(order_data, SUBMIT_TO_STORE_ATTRS[:permitted])
+
+      post_request(endpoint, order_data, headers)
     end
 
-    def submit!
-      response = soap_client.call(:submit_order, message: build_order_data)
-
-      raise Lipseys::NotAuthenticated if not_authenticated?(response)
-
-      order_result = response.body[:submit_order_response][:submit_order_result]
-
-      {
-        order_number: order_result[:order_no],
-        new_order: (order_result[:new_order] == 'Y'),
-        success: (order_result[:success] == 'Y'),
-        description: order_result[:return_desc],
-        quantity_received: Integer(order_result[:qty_received]),
-      }
-    rescue Savon::Error => e
-      { success: false, description: e.to_s }
-    end
-
-    private
-
-    def build_order_data
-      order_data = {
-        EmailAddress: @email,
-        Password: @password,
-        LipseysItemNumberOrUPC: @item_number_or_upc,
-        Qty: @quantity
-      }
-
-      order_data[:NotifyByEmail] = @notify_by_email unless @notify_by_email.nil?
-      order_data[:PONumber] = @purchase_order unless @purchase_order.nil?
-      order_data[:Note] = @note unless @note.nil?
-
-      { OrderData: order_data }
-    end
-
-    def not_authenticated?(response)
-      order_result = response.body[:submit_order_response][:submit_order_result]
-      order_result[:success] == 'N' && order_result[:return_desc] =~ /Credentials Not Valid/i
+    def submit_to_drop_ship(order_data)
+      # NOTE: Will build this out as time permits.
+      false
     end
 
   end
