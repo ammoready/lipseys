@@ -96,7 +96,13 @@ module Lipseys
 
     def standardize_body_data(submitted_data, permitted_data_attrs)
       _submitted_data = submitted_data.deep_transform_keys(&:to_sym)
-      permitted_data = (_submitted_data.select! { |k, v| permitted_data_attrs.include?(k) } || _submitted_data)
+      permitted_data = _submitted_data.select! do |k, v|
+        if v.is_a?(Hash)
+          _submitted_data[k] = _submitted_data[k].select! { |k, v| permitted_data_attrs.include?(k) }
+        else
+          permitted_data_attrs.include?(k)
+        end
+      end || _submitted_data
 
       permitted_data.deep_transform_keys { |k| k.to_s.camelize(:lower) }
     end
