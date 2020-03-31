@@ -9,3 +9,29 @@ require 'lipseys/order'
 require 'lipseys/response'
 require 'lipseys/user'
 require 'lipseys/version'
+
+module Lipseys
+
+  class << self
+    attr_accessor :config
+  end
+
+  def self.config
+    @config ||= Configuration.new
+  end
+
+  def self.configure
+    yield(config)
+  end
+
+  class Configuration
+    attr_accessor :proxy_address
+    attr_accessor :proxy_port
+
+    def initialize
+      @proxy_address ||= nil
+      @proxy_port    ||= nil
+    end
+  end
+
+end

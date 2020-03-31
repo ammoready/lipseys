@@ -52,7 +52,7 @@ module Lipseys
     def process_request(request)
       uri = URI(request.path)
 
-      response = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+      response = Net::HTTP.start(uri.host, uri.port, Lipseys.config.proxy_address, Lipseys.config.proxy_port, use_ssl: true) do |http|
         http.request(request)
       end
 
