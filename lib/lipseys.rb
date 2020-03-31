@@ -1,20 +1,38 @@
+require 'lipseys/base'
 require 'lipseys/version'
 
-require 'net/http'
-require 'nokogiri'
-require 'savon'
-
-require 'lipseys/base'
-require 'lipseys/soap_client'
-
+require 'lipseys/api'
 require 'lipseys/catalog'
+require 'lipseys/client'
+require 'lipseys/error'
 require 'lipseys/inventory'
-require 'lipseys/invoice'
+require 'lipseys/items'
 require 'lipseys/order'
+require 'lipseys/response'
 require 'lipseys/user'
-require 'lipseys/image'
-require 'lipseys/parser'
 
 module Lipseys
-  class NotAuthenticated < StandardError; end
+
+  class << self
+    attr_accessor :config
+  end
+
+  def self.config
+    @config ||= Configuration.new
+  end
+
+  def self.configure
+    yield(config)
+  end
+
+  class Configuration
+    attr_accessor :proxy_address
+    attr_accessor :proxy_port
+
+    def initialize
+      @proxy_address ||= nil
+      @proxy_port    ||= nil
+    end
+  end
+
 end

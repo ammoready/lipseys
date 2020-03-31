@@ -3,69 +3,23 @@ module Lipseys
 
     protected
 
-    # Wrapper to `self.requires!` that can be used as an instance method.
     def requires!(*args)
       self.class.requires!(*args)
     end
 
     def self.requires!(hash, *params)
+      hash_keys = hash.collect { |k, v| v.is_a?(Array) ? [k, v.collect(&:keys)] : k }.flatten
+
       params.each do |param|
         if param.is_a?(Array)
-          raise ArgumentError.new("Missing required parameter: #{param.first}") unless hash.has_key?(param.first)
+          raise ArgumentError.new("Missing required parameter: #{param.first}") unless hash_keys.include?(param.first)
 
           valid_options = param[1..-1]
           raise ArgumentError.new("Parameter: #{param.first} must be one of: #{valid_options.join(', ')}") unless valid_options.include?(hash[param.first])
         else
-          raise ArgumentError.new("Missing required parameter: #{param}") unless hash.has_key?(param)
+          raise ArgumentError.new("Missing required parameter: #{param}") unless hash_keys.include?(param)
         end
       end
-    end
-
-    def content_for(xml_doc, field)
-      node = xml_doc.css(field).first
-      node.nil? ? nil : node.content.strip
-    end
-
-    def get_response_xml(api_url, params)
-      uri = URI(api_url)
-      uri.query = URI.encode_www_form(params_to_auth(params))
-
-      response = Net::HTTP.get_response(uri)
-      xml_doc = Nokogiri::XML(response.body)
-
-      raise Lipseys::NotAuthenticated if not_authenticated?(xml_doc)
-
-      xml_doc
-    end
-
-    def not_authenticated?(xml_doc)
-      msg = content_for(xml_doc, 'CatalogError')
-      msg =~ /Login failed/i || msg =~ /Credentials Not Valid/i
-    end
-
-    def stream_to_tempfile(api_url, params)
-      tempfile  = Tempfile.new
-      uri       = URI(api_url)
-      uri.query = URI.encode_www_form(params_to_auth(params))
-
-      Net::HTTP.get_response(uri) do |response|
-        File.open(tempfile, 'w') do |file|
-          response.read_body do |chunk|
-            file.write(chunk.force_encoding('UTF-8'))
-          end
-        end
-      end
-
-      tempfile
-    end
-
-    private
-
-    def params_to_auth(params)
-      {
-        email: params.fetch(:username),
-        pass: params.fetch(:password),
-      }
     end
 
   end
