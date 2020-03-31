@@ -1,5 +1,7 @@
-require 'lipseys/api'
 require 'lipseys/base'
+require 'lipseys/version'
+
+require 'lipseys/api'
 require 'lipseys/catalog'
 require 'lipseys/client'
 require 'lipseys/error'
@@ -8,7 +10,6 @@ require 'lipseys/items'
 require 'lipseys/order'
 require 'lipseys/response'
 require 'lipseys/user'
-require 'lipseys/version'
 
 module Lipseys
 
