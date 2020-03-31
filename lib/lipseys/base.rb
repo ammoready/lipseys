@@ -8,7 +8,7 @@ module Lipseys
     end
 
     def self.requires!(hash, *params)
-      hash_keys = collect_hash_keys(hash)
+      hash_keys = hash.collect { |k, v| v.is_a?(Array) ? [k, v.collect(&:keys)] : k }.flatten
 
       params.each do |param|
         if param.is_a?(Array)
@@ -19,15 +19,6 @@ module Lipseys
         else
           raise ArgumentError.new("Missing required parameter: #{param}") unless hash_keys.include?(param)
         end
-      end
-    end
-
-    private
-
-    def self.collect_hash_keys(hash)
-      hash.each_with_object([]) do |(k,v), keys|
-        keys << k
-        keys.concat(self.collect_hash_keys(v)) if v.is_a?(Hash)
       end
     end
 
