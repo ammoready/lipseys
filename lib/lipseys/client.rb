@@ -33,7 +33,11 @@ module Lipseys
         content_type_header('application/json')
       )
 
-      self.access_token = response[:token]
+      if response.success?
+        self.access_token = response[:token]
+      else
+        raise Lipseys::Error::NotAuthorized.new(response.body)
+      end
     end
 
   end
