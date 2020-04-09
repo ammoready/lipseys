@@ -1,6 +1,7 @@
 require 'lipseys/api'
 require 'lipseys/items'
 require 'lipseys/order'
+require 'lipseys/shipping'
 
 module Lipseys
   class Client < Base
@@ -22,6 +23,10 @@ module Lipseys
 
     def order
       @order ||= Lipseys::Order.new(self)
+    end
+
+    def shipping
+      @shipping ||= Lipseys::Shipping.new(self)
     end
 
     private

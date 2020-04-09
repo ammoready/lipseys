@@ -9,6 +9,7 @@ require 'lipseys/inventory'
 require 'lipseys/items'
 require 'lipseys/order'
 require 'lipseys/response'
+require 'lipseys/shipping'
 require 'lipseys/user'
 
 module Lipseys
