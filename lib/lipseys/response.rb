@@ -26,7 +26,7 @@ module Lipseys
     end
 
     def [](key)
-      @data[key]
+      @data&.[](key)
     end
 
     def body
