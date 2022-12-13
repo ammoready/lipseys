@@ -6,19 +6,19 @@ module Lipseys
     include Lipseys::API
 
     SUBMIT_TO_STORE_ATTRS = {
-      permitted: %i( po_number disable_email items item_no quantity note ).freeze,
+      permitted: %i( po disable_email items item_no quantity note ).freeze,
       required:  %i( items item_no quantity ).freeze
     }
 
     SUBMIT_TO_DROP_SHIP_ATTRS = {
       permitted: %i(
-        warehouse po_number billing_name billing_address_line_1 billing_address_line_2 billing_address_city
+        warehouse po billing_name billing_address_line_1 billing_address_line_2 billing_address_city
         billing_address_state billing_address_zip shipping_name shipping_address_line_1 shipping_address_line_2
         shipping_address_city shipping_address_state shipping_address_zip message_for_sales_exec disable_email
         items item_no quantity note overnight
       ).freeze,
       required: %i(
-        po_number billing_name billing_address_line_1  billing_address_city billing_address_state billing_address_zip
+        po billing_name billing_address_line_1  billing_address_city billing_address_state billing_address_zip
         shipping_name shipping_address_line_1 shipping_address_city shipping_address_state shipping_address_zip
         items item_no quantity
       ).freeze
