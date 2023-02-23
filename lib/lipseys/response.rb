@@ -38,7 +38,7 @@ module Lipseys
     end
 
     def success?
-      !!self[:success] && self[:errors].empty?
+      !!self[:success]
     end
 
   end
