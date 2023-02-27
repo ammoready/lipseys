@@ -1,0 +1,43 @@
+{
+  "success": true,
+  "authorized": true,
+  "errors": [],
+  "data": {
+    "nextUpdate": "2023-02-27T08:31:07.5974796-06:00",
+    "items": [
+        {
+            "itemNumber": "SI365XCA9COMP",
+            "upc": "798681669981",
+            "mfgModelNumber": "365XCA-9-COMP",
+            "quantity": 100,
+            "allocated": false,
+            "onSale": false,
+            "price": 697.00,
+            "currentPrice": 697.00,
+            "retailMap": 799.99
+        },
+        {
+            "itemNumber": "WBMAP01N653WR8B",
+            "upc": "747115440337",
+            "mfgModelNumber": "MAP01N653WR8B",
+            "quantity": 1,
+            "allocated": false,
+            "onSale": true,
+            "price": 2165.59,
+            "currentPrice": 2065.59,
+            "retailMap": 2599.00
+        },
+        {
+            "itemNumber": "WBMWM01N300WR6T",
+            "upc": "747115441105",
+            "mfgModelNumber": "MWM01N300WR6T",
+            "quantity": 0,
+            "allocated": false,
+            "onSale": false,
+            "price": 1362.04,
+            "currentPrice": 1362.04,
+            "retailMap": 1599.00
+        }
+      ]
+    }
+  }
