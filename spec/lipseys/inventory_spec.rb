@@ -6,8 +6,14 @@ describe Lipseys::Inventory do
   let(:options) { { username: '123', password: 'abc' } }
 
   before do
-    stub_request(:get, "http://184.188.80.195/API/pricequantitycatalog.ashx?email=123&pass=abc").
-      with(headers: default_headers).to_return(status: 200, body: FixtureHelper.get_fixture_file('LipseysInventoryPricing.xml').read)
+    stub_request(:post, "https://api.lipseys.com/api/integration/authentication/login").
+      with(:body => "{\"email\":\"123\",\"password\":\"abc\"}").
+      to_return(
+        :status => 200, :body => {"token": "Cw2Om8PqL/bZtpTELyDfuTJqAekW5oqhr842jPpcSUA="}.to_json, :headers => {})
+
+    stub_request(:get, "https://api.lipseys.com/api/integration/items/pricingquantityfeed").
+      with(body: "{}",).to_return(status: 200, body: FixtureHelper.get_fixture_file('LipseysInventoryPricing.json').read, headers: {})
+
   end
 
   describe '.all' do
@@ -17,15 +23,15 @@ describe Lipseys::Inventory do
       items.each_with_index do |item, index|
         case index
         when 0
-          expect(item[:item_identifier]).to  eq('ABC00111')
-          expect(item[:price]).to eq('500.00')
+          expect(item[:item_identifier]).to eq('SI365XCA9COMP')
+          expect(item[:price]).to eq(697.00)
         when 1
-          expect(item[:item_identifier]).to  eq('ABC00112')
-          expect(item[:price]).to eq('400.00')
+          expect(item[:item_identifier]).to eq('WBMAP01N653WR8B')
+          expect(item[:price]).to eq(2165.59)
         end
       end
 
-      expect(items.count).to eq(44)
+      expect(items.count).to eq(3)
     end
   end
 
