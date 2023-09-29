@@ -35,6 +35,7 @@ module Lipseys
         item_identifier: item[:itemNo],
         brand: item[:manufacturer],
         mfg_number: item[:manufacturerModelNo],
+        image_name: item[:imageName],
         features: {
           caliber: item[:caliberGauge],
           action: item[:action],
